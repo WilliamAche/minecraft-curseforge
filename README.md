@@ -16,7 +16,7 @@
   <img src="https://img.shields.io/badge/Dificultad-Souls--Like-212121?style=for-the-badge&logo=target&logoColor=white" alt="Dificultad" />
   <img src="https://img.shields.io/badge/Idioma-Español-F0AD4E?style=for-the-badge&logo=googletranslate&logoColor=white" alt="Idioma" />
 </p><br>
-<a href="https://williamache.github.io/minecraft-curseforge/">
+<a href="https://wydex28.github.io/Chronicles-of-the-Fallen-Realm/">
   <img src="https://img.shields.io/badge/🌐_Sitio_Web_Oficial-Chronicles_of_the_Fallen_Realm-0a0a0a?style=for-the-badge&logo=githubpages&logoColor=white&labelColor=CF9E51" alt="Landing Page" />
 </a>
 <br><br>

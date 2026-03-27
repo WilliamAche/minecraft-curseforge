@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor de Skins - Chronicles of the Fallen Realm</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0f1115',
+                        darker: '#090a0c',
+                        brand: '#b8860b',
+                        gold: '#CF9E51',
+                        'soul-red': '#8a0303'
+                    },
+                    fontFamily: {
+                        rpg: ['"Cinzel"', 'serif'],
+                        body: ['"Inter"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #090a0c;
+            color: #d1d5db;
+        }
+        .text-glow {
+            text-shadow: 0 0 15px rgba(207, 158, 81, 0.4);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090a0c;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #CF9E51;
+        }
+        #skin-container canvas {
+            outline: none;
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body class="font-body antialiased selection:bg-brand selection:text-white flex flex-col min-h-screen">
+
+    <!-- Navigation -->
+    <nav id="navbar" class="w-full z-50 py-4 bg-darker/95 backdrop-blur-md border-b border-gray-800 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <a href="index.html" class="flex-shrink-0 flex items-center cursor-pointer transition-transform hover:scale-105">
+                    <i class="fa-solid fa-khanda text-gold text-2xl mr-3"></i>
+                    <span class="font-rpg font-bold text-xl text-white tracking-widest uppercase text-glow">Chronicles</span>
+                </a>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-300 hover:text-gold transition-colors font-medium"><i class="fa-solid fa-arrow-left mr-2"></i>Volver al Inicio</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col items-center justify-center py-12 px-4 relative max-w-7xl mx-auto w-full">
+        <div class="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')]"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gold/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+        <div class="relative z-10 w-full bg-dark p-6 md:p-8 rounded-2xl border border-gray-800 shadow-2xl">
+            <div class="text-center mb-8">
+                <i class="fa-solid fa-cube text-4xl text-gold mb-3 text-glow"></i>
+                <h1 class="font-rpg text-3xl md:text-4xl font-bold text-white mb-2 text-glow">Previsualizador de Skins</h1>
+                <p class="text-gray-400 text-sm md:text-base">Haz clic en una skin de la galería o sube la tuya.</p>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-8 items-stretch justify-center h-auto lg:h-[550px]">
+                
+                <!-- Left: Skins Gallery -->
+                <div class="w-full lg:w-[450px] bg-darker p-5 rounded-xl border border-gray-800 flex flex-col items-center shadow-lg">
+                    <h3 class="font-rpg text-xl font-bold text-gold mb-4 border-b border-gray-800 pb-2 w-full text-center">Galería de Skins</h3>
+                    <!-- Grid container -->
+                    <div id="skins-grid" class="flex flex-wrap justify-center gap-3 w-full content-start flex-1 overflow-y-auto pr-2 pb-2">
+                        <!-- Canvases will be generated here by JS -->
+                    </div>
+                    <!-- Pagination Controls -->
+                    <div class="flex justify-between items-center w-full px-2 text-sm mt-4 pt-3 border-t border-gray-800">
+                        <button id="btn_prev_page" class="px-4 py-1.5 bg-dark border border-gray-700 text-gray-300 rounded hover:border-gold hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium">
+                            <i class="fa-solid fa-chevron-left mr-1"></i> Anterior
+                        </button>
+                        <span id="page_indicator" class="text-gold font-bold text-xs tracking-widest uppercase bg-dark px-3 py-1 rounded border border-gray-800 shadow-inner">1/15</span>
+                        <button id="btn_next_page" class="px-4 py-1.5 bg-dark border border-gray-700 text-gray-300 rounded hover:border-gold hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium">
+                            Siguiente <i class="fa-solid fa-chevron-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Side: Controls + Viewer -->
+                <div class="flex-1 flex flex-col gap-5 min-w-[320px]">
+                    
+                    <!-- Top: Controls Area -->
+                    <div class="w-full bg-darker p-4 rounded-xl border border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg shrink-0">
+                        <!-- File Upload -->
+                        <div class="flex items-center gap-3 w-full sm:w-auto">
+                            <label class="text-xs text-gray-400 whitespace-nowrap font-medium hidden sm:block">Skin Propia:</label>
+                            <label for="skin_upload" class="flex-1 sm:flex-none justify-center px-4 py-2 bg-dark border border-gray-600 hover:border-gold text-gray-300 hover:text-white rounded cursor-pointer transition-all hover:shadow-[0_0_10px_rgba(207,158,81,0.2)] text-xs flex items-center font-medium">
+                                <i class="fa-solid fa-upload mr-2"></i> Subir Archivo
+                            </label>
+                            <input type="file" id="skin_upload" accept="image/png" class="hidden">
+                        </div>
+
+                        <!-- Animation Controls -->
+                        <div class="flex flex-wrap justify-center gap-2 w-full sm:w-auto">
+                            <button id="btn_walk" class="flex-1 sm:flex-none justify-center px-4 py-2 bg-dark border border-gray-700 text-gray-300 rounded hover:border-gold hover:text-white transition-all text-xs flex items-center gap-1.5">
+                                <i class="fa-solid fa-person-walking"></i> Caminar
+                            </button>
+                            <button id="btn_run" class="flex-1 sm:flex-none justify-center px-4 py-2 bg-dark border border-gray-700 text-gray-300 rounded hover:border-gold hover:text-white transition-all text-xs flex items-center gap-1.5">
+                                <i class="fa-solid fa-person-running"></i> Correr
+                            </button>
+                            <button id="btn_rotate" class="flex-1 sm:flex-none justify-center px-4 py-2 bg-dark border border-gray-700 text-gray-300 rounded border-gold text-white transition-all text-xs flex items-center gap-1.5 font-bold shadow-[0_0_8px_rgba(207,158,81,0.15)]">
+                                <i class="fa-solid fa-arrows-rotate"></i> Auto-Rotar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Bottom: Main Viewer Area -->
+                    <div class="flex-1 relative bg-darker p-2 rounded-xl border border-gray-800 shadow-inner group flex justify-center items-center overflow-hidden min-h-[350px]">
+                        <canvas id="skin-container" class="w-full h-full cursor-grab active:cursor-grabbing max-w-[280px] max-h-[380px] object-contain drop-shadow-2xl"></canvas>
+                        <div class="absolute bottom-6 left-0 right-0 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                            <span class="bg-black/80 text-gray-300 text-xs px-4 py-2 rounded-md backdrop-blur-md shadow-lg border border-gray-700">Click y arrastra el modelo para rotarlo libremente</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black py-8 border-t border-gray-900 text-center">
+        <p class="text-xs text-gray-700 tracking-wider">Creado utilizando TailwindCSS y skinview3d.</p>
+    </footer>
+
+    <!-- Librería skinview3d -->
+    <script src="https://cdn.jsdelivr.net/npm/skinview3d@3.0.0/bundles/skinview3d.bundle.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializar el visor
+            const viewer = new skinview3d.SkinViewer({
+                canvas: document.getElementById("skin-container"),
+                width: 280,
+                height: 380,
+                // Puedes poner el enlace a la skin por defecto aquí. Vamos a usar una transparente o nula inicialmente o un fallback
+            });
+
+            // Cargar una skin de ejemplo (opcional, dejamos vacío para que el modelo al menos exista aunque no tenga textura, o cargamos textura placeholder si falla)
+            // viewer.loadSkin("https://textures.minecraft.net/texture/...");
+
+            // Configuración inicial de animaciones
+            let walkAnimation = null;
+            let runAnimation = null;
+            viewer.autoRotate = true;
+            viewer.autoRotateSpeed = 0.5;
+
+            // Elementos de la UI
+            const btnWalk = document.getElementById('btn_walk');
+            const btnRun = document.getElementById('btn_run');
+            const btnRotate = document.getElementById('btn_rotate');
+
+            // Función para limpiar animaciones
+            const clearAnimations = () => {
+                viewer.animation = null;
+                walkAnimation = null;
+                runAnimation = null;
+                btnWalk.classList.remove('border-gold', 'text-white');
+                btnWalk.classList.add('border-gray-700', 'text-gray-300');
+                btnRun.classList.remove('border-gold', 'text-white');
+                btnRun.classList.add('border-gray-700', 'text-gray-300');
+            };
+
+            // Eventos de botones de animación
+            btnWalk.addEventListener('click', () => {
+                const isActive = !!walkAnimation;
+                clearAnimations();
+                if (!isActive) {
+                    walkAnimation = new skinview3d.WalkingAnimation();
+                    viewer.animation = walkAnimation;
+                    btnWalk.classList.add('border-gold', 'text-white');
+                    btnWalk.classList.remove('border-gray-700', 'text-gray-300');
+                }
+            });
+
+            btnRun.addEventListener('click', () => {
+                const isActive = !!runAnimation;
+                clearAnimations();
+                if (!isActive) {
+                    runAnimation = new skinview3d.RunningAnimation();
+                    viewer.animation = runAnimation;
+                    btnRun.classList.add('border-gold', 'text-white');
+                    btnRun.classList.remove('border-gray-700', 'text-gray-300');
+                }
+            });
+
+            btnRotate.addEventListener('click', () => {
+                viewer.autoRotate = !viewer.autoRotate;
+                if (viewer.autoRotate) {
+                    btnRotate.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> Rotación Automática: ON';
+                    btnRotate.classList.add('border-gold', 'text-white');
+                    btnRotate.classList.remove('border-gray-700', 'text-gray-300');
+                } else {
+                    btnRotate.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> Rotación Automática: OFF';
+                    btnRotate.classList.remove('border-gold', 'text-white');
+                    btnRotate.classList.add('border-gray-700', 'text-gray-300');
+                }
+            });
+
+            // Carga de archivos locales
+            document.getElementById("skin_upload").addEventListener("change", function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            viewer.loadSkin(e.target.result, { model: "default" });
+                        } catch (err) {
+                            alert("Hubo un error al cargar la skin. Asegúrate de que sea un archivo .png válido.");
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Add initial animation state based on classes above if you want it to be active by default, 
+            // but we left them inactive initially. Let's make it walk by default to look alive!
+            btnWalk.click();
+
+            // Skins Gallery Logic
+            const allSkins = ["0036c79b89a533f3.png", "066ebf54c55830d8.png", "069dbeb8d8cbd2d7.png", "07206494443bfae4.png", "0a0f337b187ae04f.png", "0b21c816ccddec6a.png", "0cdfd6b4876d5556.png", "0d0cf0dc11bdd0e4.png", "0e18cc7bab5bdef7.png", "14462f73dac46ed2.png", "1565b88b9ba18c74.png", "15b085abb585478b.png", "16c2640be8a12c96.png", "17222f4ed9a98665.png", "1b9222edf330c7ba.png", "1bcf8d5167f3c488.png", "2178bd2e22885db5.png", "25d0909d82e87a45.png", "25ee4a1f886f29d7.png", "291ac84a9d2de496.png", "2b925de8c7bf18c1.png", "36c0d05c5a39ae50.png", "3a203e10ed306ffc.png", "3fb31394513ca544.png", "403421be49609706.png", "405761797b22df1d.png", "40bd05b6534389f9.png", "41c4f462de5e7004.png", "46061a800202b6f9.png", "466de2d8af1327ab.png", "46dec770857edc6d.png", "47559bca0d746afb.png", "47858e1ee79d5046.png", "49c184c0da4e68f0.png", "4aefe668138c9d36.png", "4dfada856d4d8348.png", "4eaaa881385ab630.png", "500c03f86697b8c8.png", "522d4746fac3ef35.png", "5410b05bef47eb2a.png", "546dee9a93b4d4f9.png", "58d436806a43f66b.png", "595383f02bef3447.png", "5a6f460bd59237ca.png", "5a7d1ac8d6109419.png", "5d49a97a130a116d.png", "5f5d15dd3b219678.png", "602c96d5c8ba45ee.png", "60ca13310db8ad93.png", "624efe1f202a3f8c.png", "629111f76c4b84ff.png", "6367ba62db6f3316.png", "66da71fa04cc7646.png", "67d3f64cbcd27bb6.png", "6e0b51ac40ad44f0.png", "707f4f02dd3e85a9.png", "731292bd2ac61278.png", "74045a6aa9803404.png", "7665d437c6845d4f.png", "7be9123c3255d607.png", "7c63d3b901d49e0f.png", "80127cd78633a9c7.png", "82d0ba7f0f66abea.png", "8641c28eb69c8e6b.png", "86d28bd1083c15ce.png", "8851c4a4337516a7.png", "898da1514048e8fb.png", "8b60c3562aa475c2.png", "8c82444fd6d669cd.png", "8d7310b71884f5c9.png", "8ea08b74100aca2e.png", "904e00a5d422c8c2.png", "908f3b1ce937cd3a.png", "9271a4b10bd54c9a.png", "92a04a8a8670eb6d.png", "961e8b5b8f95c698.png", "963f3b6cffee84b2.png", "990188b347d43bee.png", "9b19c47ec1b068a5.png", "9c224eab6ce5b3b3.png", "9f38898bfa28a60c.png", "9ffdad893d6b2ac8.png", "a16f3f2cafcc1666.png", "a17b7880b05dffad.png", "a4844a1b92263136.png", "a72ffbe0580e4af7.png", "a7f1178d231c665f.png", "a85dc0c961de42e1.png", "a8b5788cf319f503.png", "aa05b8bed56853db.png", "ae8b181d05177782.png", "aef8f4c2f201a567.png", "af157e1d414d8cad.png", "af16f98e013c7c37.png", "b0c3677da9b58d5c.png", "b2051635762894fc.png", "b551a2b8a504c20f.png", "b784ced473fcecd5.png", "b7bf53b3bee6c5a7.png", "b94d2dd81ee6820b.png", "b9b13040517c5727.png", "b9eed32b3aa472eb.png", "bb275912565345fd.png", "bb9c0af490e1e363.png", "bda72691d3593d65.png", "bdc75083e33e853a.png", "bf5cd831ce22a859.png", "c313a715c6cedb33.png", "c4f56f4ca0eb1049.png", "c74cd0b54149de2a.png", "c8e2432477ee7358.png", "cc284f9386396ee3.png", "cc510beb06a4391b.png", "cc72bc82af88cfb2.png", "cdb84f979cda348a.png", "cdb9f04213a2ec8b.png", "cfa4a513dbeb4c36.png", "d0c4d931f9332306.png", "d18baf534e87e474.png", "d34c85da8923a9a8.png", "d3b1b92feccff08d.png", "d4e0c62921c5d249.png", "d74da2e010858c02.png", "d8e5594998ff8c68.png", "db52566897b3bf3d.png", "dbad6add8b32d5f8.png", "dbb10570319b9639.png", "dc1ec36fa0955e5a.png", "dc8f35b9b41290d2.png", "de0fe96cd98e19a0.png", "df2d79133021d507.png", "dfd69f77fafe2874.png", "e1f9fd89a86d78c2.png", "e38ab5365275d4c9.png", "e6d3f334d1460d8b.png", "e7933ecea7f009bb.png", "e84bc7842413595d.png", "e8a51bb3f8ccdb5d.png", "e9fe7a5b8cf18e57.png", "ee8d49ce4ddbe3ab.png", "f3934462b1534243.png", "f515d18f2d39733b.png", "f561b0dc0ef7c211.png", "f8dd3b84ee75f495.png", "f95fd8577d54c163.png", "f9a73abe50184afb.png", "fa8ff66e32ef3579.png", "fccd98e34e7beed6.png", "fd2ca1bcfa0ff127.png", "fd74e3d5eeb0356a.png"];
+            let currentPage = 1;
+            const itemsPerPage = 8;
+            const totalPages = Math.ceil(allSkins.length / itemsPerPage);
+            let galleryViewers = [];
+
+            const gridElement = document.getElementById("skins-grid");
+            const btnPrevPage = document.getElementById("btn_prev_page");
+            const btnNextPage = document.getElementById("btn_next_page");
+            const pageIndicator = document.getElementById("page_indicator");
+
+            const renderGalleryPage = (page) => {
+                // Remove previous viewers to save resources
+                galleryViewers.forEach(v => v.dispose());
+                galleryViewers = [];
+                gridElement.innerHTML = '';
+
+                const startIndex = (page - 1) * itemsPerPage;
+                const endIndex = Math.min(startIndex + itemsPerPage, allSkins.length);
+                const pageSkins = allSkins.slice(startIndex, endIndex);
+
+                pageSkins.forEach(skinFilename => {
+                    const skinItemUrl = `skins/${skinFilename}`;
+                    
+                    const skinItem = document.createElement("div");
+                    skinItem.className = "bg-dark shadow-lg rounded-xl border border-gray-800 p-3 flex flex-col items-center hover:border-gold hover:-translate-y-1 transition-all cursor-pointer w-[180px]";
+                    
+                    const canvasContainer = document.createElement("div");
+                    canvasContainer.style.width = "140px";
+                    canvasContainer.style.height = "220px";
+                    canvasContainer.className = "mb-2 pointer-events-none";
+                    
+                    const nameLabel = document.createElement("span");
+                    nameLabel.className = "text-[10px] text-gray-400 font-medium truncate w-full text-center hover:text-gold transition-colors uppercase tracking-widest";
+                    // Only show first 8 chars
+                    nameLabel.textContent = skinFilename.substring(0, 8) + '..';
+
+                    skinItem.appendChild(canvasContainer);
+                    skinItem.appendChild(nameLabel);
+                    gridElement.appendChild(skinItem);
+
+                    // Initialize mini viewer for gallery
+                    const miniViewer = new skinview3d.SkinViewer({
+                        width: 140,
+                        height: 220,
+                        skin: skinItemUrl
+                    });
+                    
+                    // Add animation to the mini viewer
+                    miniViewer.animation = new skinview3d.WalkingAnimation();
+                    miniViewer.autoRotate = true;
+                    miniViewer.autoRotateSpeed = 0.5;
+
+                    canvasContainer.appendChild(miniViewer.canvas);
+                    galleryViewers.push(miniViewer);
+
+                    // Click event to transfer skin to main view
+                    skinItem.addEventListener('click', () => {
+                        viewer.loadSkin(skinItemUrl);
+                        // Optional scroll to top smoothly
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                });
+
+                // Update pagination controls
+                pageIndicator.textContent = `${page} / ${totalPages}`;
+                btnPrevPage.disabled = page === 1;
+                btnNextPage.disabled = page === totalPages;
+            };
+
+            btnPrevPage.addEventListener("click", () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderGalleryPage(currentPage);
+                }
+            });
+
+            btnNextPage.addEventListener("click", () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderGalleryPage(currentPage);
+                }
+            });
+
+            // Initialize the gallery if there are skins mapped
+            if (allSkins.length > 0) {
+                renderGalleryPage(currentPage);
+                // Load default first skin automatically into main viewer instead of fallback
+                viewer.loadSkin(`skins/${allSkins[0]}`);
+            }
+        });
+    </script>
+</body>
+</html>
